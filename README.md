@@ -35,6 +35,9 @@ $ npm install
 ## Running the app
 
 ```bash
+#connection datadase from docker
+$ docker compose up 
+
 # development
 $ npm run start
 
@@ -45,17 +48,41 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+## API
 
 ```bash
-# unit tests
-$ npm run test
+# swagger
+http://localhost:3000/api
 
-# e2e tests
-$ npm run test:e2e
+# adding user
+POST http://localhost:3000/users
+{
+  "name": "Yura",
+  "login": "yura",
+  "password": "qwerty"
+}
 
-# test coverage
-$ npm run test:cov
+# receiving jwt token
+POST http://localhost:3000/login
+{
+   "login": "yura",
+  "password": "qwerty"
+}
+
+# message loading
+POST http://localhost:3000/notes
+body: file, name, message
+
+# view message
+GET http://localhost:3000/notes/id
+
+# edit message
+PUT http://localhost:3000/notes/id
+body: file, message
+
+# delete message
+DELETE http://localhost:3000/notes/id
+
 ```
 
 ## Support

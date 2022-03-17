@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   UploadedFile,
+  Put,
 } from '@nestjs/common';
 import { Express } from 'express';
 import { v4 as uuid } from 'uuid';
@@ -22,6 +23,7 @@ import {
   ApiConsumes,
   ApiOperation,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -29,6 +31,7 @@ import { extname } from 'path';
 import { Note } from './entities/note.entity';
 
 @UseGuards(JwtAuthGuard)
+@ApiTags('Notes')
 @Controller('notes')
 export class NoteController {
   constructor(private readonly noteService: NoteService) {}
@@ -73,7 +76,7 @@ export class NoteController {
       }),
     }),
   )
-  @Post(':id')
+  @Put(':id')
   update(
     @Param('id') id: string,
     @Body() updateNoteDto: UpdateNoteDto,

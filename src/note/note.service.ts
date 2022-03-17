@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createReadStream, existsSync } from 'fs';
-import { join, extname } from 'path';
+import { join } from 'path';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 
@@ -52,15 +52,28 @@ export class NoteService {
     updateNoteDto: UpdateNoteDto,
     file: Express.Multer.File,
   ) {
-    return `This action updates a #${id} note`;
+    const note = await this.checkId(id);
+    if (file) {
+      const fileForDelete = note.fileId;
+      await this.removeFile(fileForDelete);
+      note.fileId = file.originalname;
+      note.fileName = file.filename;
+    }
+    note.message = updateNoteDto.message;
+
+    const data = await this.noteRepository.save(note);
+    return data;
   }
 
   async remove(id: string) {
-    const delNote = await this.noteRepository.findOne(id);
-    if (!delNote) {
-      throw new HttpException('ID not found!', HttpStatus.NOT_FOUND);
-    }
-    const filepath = join(process.cwd(), `/uploads/${delNote.fileId}`);
+    const delNote = await this.checkId(id);
+    await this.removeFile(delNote.fileId);
+
+    return this.noteRepository.remove(delNote);
+  }
+
+  async removeFile(fileId: string) {
+    const filepath = join(process.cwd(), `/uploads/${fileId}`);
 
     if (!existsSync(filepath)) {
       throw new HttpException('File was not founded!', HttpStatus.NOT_FOUND);
@@ -68,7 +81,14 @@ export class NoteService {
     fs.unlink(filepath, (err) => {
       if (err) throw new HttpException('File not found!', HttpStatus.NOT_FOUND);
     });
+  }
 
-    return this.noteRepository.remove(delNote);
+  async checkId(id: string) {
+    const note = await this.noteRepository.findOne(id);
+    if (!note) {
+      throw new HttpException('ID not found!', HttpStatus.NOT_FOUND);
+    }
+
+    return note;
   }
 }
