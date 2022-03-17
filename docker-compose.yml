@@ -20,7 +20,7 @@ services:
 
   postgres:
     image: postgres
-    build: ./src/database/
+    build: ./database/
     restart: always
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}

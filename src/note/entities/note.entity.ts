@@ -1,13 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
-// export interface IUser {
-//   id: string;
-//   name: string;
-//   login: string;
-//   password: string;
-// }
-
 @Entity({ name: 'notes' })
 export class Note {
   @ApiProperty({
@@ -21,7 +14,7 @@ export class Note {
   @Column('varchar', {
     default: '01.01.2022',
   })
-  date: string;
+  date!: string;
 
   @ApiProperty({ example: 'Yura', description: 'Name' })
   @Column('varchar', {
@@ -29,9 +22,15 @@ export class Note {
   })
   name: string;
 
-  @ApiProperty({ example: 'file or string', description: 'Message' })
+  @ApiProperty({ example: 'This is message', description: 'Message' })
   @Column('varchar', {
     default: '',
   })
   message!: string;
+
+  @ApiProperty({ example: 'Src picture or video', description: 'Media' })
+  @Column('varchar', {
+    default: '',
+  })
+  media!: string;
 }
