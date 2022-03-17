@@ -25,6 +25,8 @@ import {
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { Note } from './entities/note.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('notes')
@@ -37,7 +39,8 @@ export class NoteController {
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads',
-        filename: (req, file, cb) => cb(null, uuid()),
+        filename: (req, file, cb) =>
+          cb(null, uuid() + extname(file.originalname)),
       }),
     }),
   )
@@ -50,21 +53,38 @@ export class NoteController {
     return this.noteService.create(createNoteDto, file);
   }
 
-  @Get()
-  findAll() {
-    return this.noteService.findAll();
-  }
-
+  @ApiOperation({ summary: 'Download file and message' })
+  @ApiResponse({ status: 200 })
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.noteService.findOne(id);
   }
 
+  @ApiOperation({ summary: 'Update file and message' })
+  @ApiResponse({ status: 200, type: Note })
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) =>
+          cb(null, uuid() + extname(file.originalname)),
+      }),
+    }),
+  )
   @Post(':id')
-  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-    return this.noteService.update(id, updateNoteDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateNoteDto: UpdateNoteDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.noteService.update(id, updateNoteDto, file);
   }
 
+  @ApiOperation({ summary: 'Delete file and message' })
+  @ApiResponse({ status: 204 })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.noteService.remove(id);

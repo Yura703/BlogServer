@@ -1,8 +1,17 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { v4 as uuid } from 'uuid';
 
 @Entity({ name: 'notes' })
 export class Note {
+  constructor(name: string, message: string, fileId: string, fileName: string) {
+    this.name = name;
+    this.message = message;
+    this.fileId = fileId;
+    this.fileName = fileName;
+    this.date = new Date().toLocaleString();
+    this.id = uuid();
+  }
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426655440000',
     description: 'Unique ID',
@@ -28,9 +37,18 @@ export class Note {
   })
   message!: string;
 
-  @ApiProperty({ example: 'Src picture or video', description: 'Media' })
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426655440000',
+    description: 'Unique ID',
+  })
   @Column('varchar', {
     default: '',
   })
-  media!: string;
+  fileId!: string;
+
+  @ApiProperty({ example: 'picture.jpg', description: 'fileName' })
+  @Column('varchar', {
+    default: '',
+  })
+  fileName!: string;
 }
